@@ -1,10 +1,10 @@
 import std.stdio;
-import std.array : Appender, appender;
+import std.array : appender;
 import std.uri : encodeComponent;
 import std.algorithm : canFind;
 import std.string : endsWith, startsWith;
 
-string buildUrl(Args...)(Args args)
+string buildUrl(Args...)(in Args args) pure @safe
 {
     static if (Args.length == 0)
         static assert(false, "buildUrl requires at least one argument");
@@ -15,7 +15,7 @@ string buildUrl(Args...)(Args args)
     static assert(segCount > 0, "buildUrl requires at least one path segment");
 
     static if (hasParams)
-        string[string] params = args[$ - 1];
+        const(string[string]) params = args[$ - 1];
 
     static foreach (i; 0 .. segCount)
         static assert(is(Args[i] == string),
@@ -78,6 +78,11 @@ unittest
     // segment with spaces should be encoded
     auto r3 = buildUrl("https://example.com", "with space");
     assert(r3 == "https://example.com/with%20space");
+
+    // trailing slash handling
+    assert(buildUrl("https://example.com/", "api") == "https://example.com/api");
+    assert(buildUrl("https://example.com", "/api") == "https://example.com/api");
+    assert(buildUrl("https://example.com/", "/api") == "https://example.com/api");
 
     // compile-time: calling with only params AA should fail
     static assert(!__traits(compiles, buildUrl(["k":"v"])));

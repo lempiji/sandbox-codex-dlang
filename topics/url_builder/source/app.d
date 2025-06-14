@@ -12,46 +12,43 @@ string buildUrl(Args...)(Args args)
     enum hasParams = Args.length > 0 && is(Args[$ - 1] == string[string]);
     enum segCount = hasParams ? Args.length - 1 : Args.length;
 
-    static if (segCount == 0)
-        static assert(false, "buildUrl requires at least one path segment");
+    static assert(segCount > 0, "buildUrl requires at least one path segment");
 
-    string[string] params;
     static if (hasParams)
-        params = args[$ - 1];
+        string[string] params = args[$ - 1];
 
     static foreach (i; 0 .. segCount)
         static assert(is(Args[i] == string),
             "Path segments must be strings");
 
-    string[] segs;
-    segs.length = segCount;
-    static foreach (i; 0 .. segCount)
-        segs[i] = args[i];
-
-    string base = segs.length ? segs[0] : "";
-    foreach (seg; segs[1 .. $])
-    {
+    string base = args[0];
+    static foreach (i; 1 .. segCount)
+    {{
+        auto seg = args[i];
         if (!base.endsWith("/"))
             base ~= "/";
         size_t j = 0;
         while (j < seg.length && seg[j] == '/') ++j;
         base ~= encodeComponent(seg[j .. $]);
-    }
+    }}
 
     auto buf = appender!string();
     buf.put(base);
 
-    if (params.length != 0)
-        buf.put("?");
-
-    bool first = true;
-    foreach (key, value; params)
+    static if (hasParams)
     {
-        if (!first) buf.put("&");
-        buf.put(encodeComponent(key));
-        buf.put("=");
-        buf.put(encodeComponent(value));
-        first = false;
+        if (params.length != 0)
+            buf.put("?");
+
+        bool first = true;
+        foreach (key, value; params)
+        {
+            if (!first) buf.put("&");
+            buf.put(encodeComponent(key));
+            buf.put("=");
+            buf.put(encodeComponent(value));
+            first = false;
+        }
     }
     return buf.data;
 }

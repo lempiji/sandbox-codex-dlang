@@ -12,6 +12,9 @@ string buildUrl(Args...)(Args args)
     enum hasParams = Args.length > 0 && is(Args[$ - 1] == string[string]);
     enum segCount = hasParams ? Args.length - 1 : Args.length;
 
+    static if (segCount == 0)
+        static assert(false, "buildUrl requires at least one path segment");
+
     string[string] params;
     static if (hasParams)
         params = args[$ - 1];
@@ -32,7 +35,7 @@ string buildUrl(Args...)(Args args)
             base ~= "/";
         size_t j = 0;
         while (j < seg.length && seg[j] == '/') ++j;
-        base ~= seg[j .. $];
+        base ~= encodeComponent(seg[j .. $]);
     }
 
     auto buf = appender!string();
@@ -74,6 +77,13 @@ unittest
     auto r2 = buildUrl("https://example.com", "api", "v1", p2);
     assert(r2.startsWith("https://example.com/api/v1?"));
     assert(r2.canFind("foo=bar"));
+
+    // segment with spaces should be encoded
+    auto r3 = buildUrl("https://example.com", "with space");
+    assert(r3 == "https://example.com/with%20space");
+
+    // compile-time: calling with only params AA should fail
+    static assert(!__traits(compiles, buildUrl(["k":"v"])));
 }
 
 void main()

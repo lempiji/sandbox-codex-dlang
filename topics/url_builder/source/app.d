@@ -21,19 +21,17 @@ string buildUrl(Args...)(in Args args) pure @safe
         static assert(is(Args[i] == string),
             "Path segments must be strings");
 
-    string base = args[0];
+    auto buf = appender!string();
+    buf.put(args[0]);
     static foreach (i; 1 .. segCount)
     {{
         auto seg = args[i];
-        if (!base.endsWith("/"))
-            base ~= "/";
+        if (!buf.data.endsWith("/"))
+            buf.put("/");
         size_t j = 0;
         while (j < seg.length && seg[j] == '/') ++j;
-        base ~= encodeComponent(seg[j .. $]);
+        buf.put(encodeComponent(seg[j .. $]));
     }}
-
-    auto buf = appender!string();
-    buf.put(base);
 
     static if (hasParams)
     {

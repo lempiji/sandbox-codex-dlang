@@ -2,7 +2,7 @@ import std.stdio;
 import std.array : appender;
 import std.uri : encodeComponent;
 import std.algorithm : canFind;
-import std.string : endsWith, startsWith;
+import std.string : startsWith;
 
 string buildUrl(Args...)(in Args args) pure @safe
 {
@@ -23,14 +23,19 @@ string buildUrl(Args...)(in Args args) pure @safe
 
     auto buf = appender!string();
     buf.put(args[0]);
+    bool lastWasSlash = args[0].length && args[0][$ - 1] == '/';
     static foreach (i; 1 .. segCount)
     {{
         auto seg = args[i];
-        if (!buf.data.endsWith("/"))
-            buf.put("/");
+        if (!lastWasSlash)
+        {
+            buf.put('/');
+            lastWasSlash = true;
+        }
         size_t j = 0;
         while (j < seg.length && seg[j] == '/') ++j;
         buf.put(encodeComponent(seg[j .. $]));
+        lastWasSlash = false;
     }}
 
     static if (hasParams)

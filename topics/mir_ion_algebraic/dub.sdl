@@ -1,0 +1,6 @@
+name "mir_ion_algebraic"
+description "Experiment with mir-ion JSON and Algebraic."
+authors "root"
+license "proprietary"
+dependency "mir-ion" version="~>2.3.4"
+

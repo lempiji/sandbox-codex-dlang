@@ -1,0 +1,4 @@
+name "http_delete"
+description "HTTP DELETE request example"
+authors "root"
+license "proprietary"

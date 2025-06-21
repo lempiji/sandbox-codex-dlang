@@ -4,5 +4,7 @@ This repository is a playground for exploring D language features.
 Each topic should be placed in its own subdirectory under `topics/`.
 Use `dub` or `dmd` as needed.
 
-See `topics/hello_world` for a minimal example. An additional example,
-`topics/url_builder`, demonstrates building a URL from query parameters.
+See `topics/hello_world` for a minimal example. Additional examples
+include `topics/url_builder`, which demonstrates building a URL from
+query parameters, and `topics/http_delete`, which shows how to issue an
+HTTP DELETE request and capture the headers and JSON response.

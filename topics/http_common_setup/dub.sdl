@@ -1,0 +1,4 @@
+name "http_common_setup"
+description "Reusable HTTP setup example"
+authors "root"
+license "proprietary"

@@ -1,0 +1,6 @@
+name "requests_vcr"
+description "HTTP POST with simple VCR-style caching"
+dependency "requests" version="~>2.1.3"
+authors "root"
+license "proprietary"
+targetType "executable"

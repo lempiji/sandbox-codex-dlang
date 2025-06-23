@@ -37,7 +37,7 @@ class VcrInterceptor : Interceptor
         }
 
         auto rs = next.handle(r);
-        JSONValue j;
+        JSONValue j = parseJSON("{}");
         j["body"] = cast(string)rs.responseBody.data;
         JSONValue hdrs = parseJSON("{}");
         foreach (k, v; rs.responseHeaders)

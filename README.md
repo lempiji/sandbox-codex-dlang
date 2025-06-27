@@ -11,4 +11,4 @@ HTTP DELETE request and capture the headers and JSON response. The
 `topics/http_common_setup` example demonstrates reusing HTTP
 configuration when talking to services like httpbin.org. The
 `topics/requests_vcr` example shows a basic VCR approach that
-records and replays POST responses using a `requests` interceptor.
+records and replays POST responses using a `requests` interceptor. The `topics/dmd_ast` example parses its own source using DMD and prints the AST.

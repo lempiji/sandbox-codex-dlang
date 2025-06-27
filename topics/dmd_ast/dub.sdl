@@ -1,0 +1,4 @@
+name "dmd_ast"
+description "Parses its own source and prints the DMD AST"
+dependency "dmd" version="*"
+targetType "executable"

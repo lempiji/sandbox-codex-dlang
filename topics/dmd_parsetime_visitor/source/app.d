@@ -6,6 +6,13 @@ import dmd.astcodegen;
 import dmd.visitor;
 alias AST = ASTCodegen;
 
+private AST.Module initAndParse(string path)
+{
+    initDMD();
+    auto result = parseModule(path);
+    return result.module_;
+}
+
 extern(C++) class PrintVisitor : Visitor
 {
     alias visit = Visitor.visit;
@@ -32,9 +39,7 @@ void traverse(AST.Dsymbol s, PrintVisitor v)
 
 void main()
 {
-    initDMD();
-    auto result = parseModule("source/app.d");
-    auto mod = result.module_;
+    auto mod = initAndParse("source/app.d");
     auto visitor = new PrintVisitor();
     traverse(mod, visitor);
 }

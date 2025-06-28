@@ -11,6 +11,26 @@ import dmd.astenums : STC, TY;
 import dmd.visitor.permissive;
 import dmd.visitor.strict;
 
+private ASTBase.Module initAndParse()
+{
+    initDMD();
+    // Manually construct a small AST: module with a function and a variable
+    auto mod = new ASTBase.Module("example.d", Identifier.idPool("example"), 0, 0);
+    auto members = new ASTBase.Dsymbols();
+    mod.members = members;
+
+    auto func = new ASTBase.FuncDeclaration(Loc.initial, Loc.initial,
+        Identifier.idPool("foo"), STC.none, null);
+    members.push(func);
+
+    auto t = new ASTBase.TypeBasic(TY.Tint32);
+    auto var = new ASTBase.VarDeclaration(Loc.initial, t,
+        Identifier.idPool("bar"), null);
+    members.push(var);
+
+    return mod;
+}
+
 /// Visitor that prints function names; unsupported nodes are ignored.
 extern(C++) class FuncFinderPermissiveVisitor : PermissiveVisitor!ASTBase
 {
@@ -45,20 +65,7 @@ extern(C++) class FuncFinderStrictVisitor : StrictVisitor!ASTBase
 
 void main()
 {
-    initDMD();
-    // Manually construct a small AST: module with a function and a variable
-    auto mod = new ASTBase.Module("example.d", Identifier.idPool("example"), 0, 0);
-    auto members = new ASTBase.Dsymbols();
-    mod.members = members;
-
-    auto func = new ASTBase.FuncDeclaration(Loc.initial, Loc.initial,
-        Identifier.idPool("foo"), STC.none, null);
-    members.push(func);
-
-    auto t = new ASTBase.TypeBasic(TY.Tint32);
-    auto var = new ASTBase.VarDeclaration(Loc.initial, t,
-        Identifier.idPool("bar"), null);
-    members.push(var);
+    auto mod = initAndParse();
 
     writeln("Running permissive visitor:");
     mod.accept(new FuncFinderPermissiveVisitor());

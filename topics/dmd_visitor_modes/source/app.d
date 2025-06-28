@@ -2,31 +2,33 @@ import std.stdio;
 import std.string : fromStringz;
 import core.exception : AssertError;
 
-import dmd.frontend;
-import dmd.dmodule;
 import dmd.astbase : ASTBase;
-import dmd.location : Loc;
-import dmd.identifier : Identifier;
-import dmd.astenums : STC, TY;
+import dmd.parse : Parser;
+import dmd.errorsink : ErrorSinkStderr;
+import dmd.globals;
+import dmd.id;
+import dmd.identifier;
+import dmd.target;
 import dmd.visitor.permissive;
 import dmd.visitor.strict;
+import std.file : readText;
 
-private ASTBase.Module initAndParse()
+private ASTBase.Module initAndParse(string fname)
 {
-    initDMD();
-    // Manually construct a small AST: module with a function and a variable
-    auto mod = new ASTBase.Module("example.d", Identifier.idPool("example"), 0, 0);
-    auto members = new ASTBase.Dsymbols();
-    mod.members = members;
+    Id.initialize();
+    global._init();
+    target.os = Target.OS.linux;
+    target.isX86_64 = (size_t.sizeof == 8);
+    global.params.useUnitTests = true;
+    ASTBase.Type._init();
 
-    auto func = new ASTBase.FuncDeclaration(Loc.initial, Loc.initial,
-        Identifier.idPool("foo"), STC.none, null);
-    members.push(func);
+    auto id = Identifier.idPool(fname);
+    auto mod = new ASTBase.Module(&(fname.dup)[0], id, false, false);
+    auto input = readText(fname) ~ "\0";
 
-    auto t = new ASTBase.TypeBasic(TY.Tint32);
-    auto var = new ASTBase.VarDeclaration(Loc.initial, t,
-        Identifier.idPool("bar"), null);
-    members.push(var);
+    scope p = new Parser!ASTBase(mod, input, false, new ErrorSinkStderr(), null, false);
+    p.nextToken();
+    mod.members = p.parseModule();
 
     return mod;
 }
@@ -65,7 +67,7 @@ extern(C++) class FuncFinderStrictVisitor : StrictVisitor!ASTBase
 
 void main()
 {
-    auto mod = initAndParse();
+    auto mod = initAndParse("sample.d");
 
     writeln("Running permissive visitor:");
     mod.accept(new FuncFinderPermissiveVisitor());

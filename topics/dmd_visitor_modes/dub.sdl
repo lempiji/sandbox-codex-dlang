@@ -1,0 +1,4 @@
+name "dmd_visitor_modes"
+description "Strict vs permissive visitors"
+dependency "dmd" version="*"
+targetType "executable"

@@ -1,3 +1,9 @@
+/**
+ * This example parses `source/app.d` using DMD's frontend and then
+ * walks the resulting AST with a `PrintVisitor` (derived from
+ * `ParseTimeVisitor`) to print symbol and statement information.
+ */
+
 import std.stdio;
 import std.string : fromStringz;
 
@@ -6,10 +12,13 @@ import dmd.astcodegen;
 import dmd.visitor;
 alias AST = ASTCodegen;
 
-private AST.Module initAndParse(string path)
+private AST.Module initAndParse(string sourcePath)
 {
+    // Initialize the DMD frontend runtime
     initDMD();
-    auto result = parseModule(path);
+    // Parse the requested source file and obtain its AST
+    auto result = parseModule(sourcePath);
+    // Return the top-level module node
     return result.module_;
 }
 
@@ -39,7 +48,10 @@ void traverse(AST.Dsymbol s, PrintVisitor v)
 
 void main()
 {
+    // Parse this file using DMD's frontend
     auto mod = initAndParse("source/app.d");
+    // Create the visitor that will print symbol and statement info
     auto visitor = new PrintVisitor();
+    // Walk the AST with our visitor
     traverse(mod, visitor);
 }

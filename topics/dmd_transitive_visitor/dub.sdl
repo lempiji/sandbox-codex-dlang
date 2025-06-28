@@ -1,0 +1,4 @@
+name "dmd_transitive_visitor"
+description "ParseTimeTransitiveVisitor example"
+dependency "dmd" version="*"
+targetType "executable"

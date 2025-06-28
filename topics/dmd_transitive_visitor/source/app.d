@@ -10,6 +10,26 @@ import dmd.target;
 import std.file : readText;
 import dmd.visitor.transitive;
 
+private ASTBase.Module initAndParse(string fname)
+{
+    Id.initialize();
+    global._init();
+    target.os = Target.OS.linux;
+    target.isX86_64 = (size_t.sizeof == 8);
+    global.params.useUnitTests = true;
+    ASTBase.Type._init();
+
+    auto id = Identifier.idPool(fname);
+    auto mod = new ASTBase.Module(&(fname.dup)[0], id, false, false);
+    auto input = readText(fname) ~ "\0";
+
+    scope p = new Parser!ASTBase(mod, input, false, new ErrorSinkStderr(), null, false);
+    p.nextToken();
+    mod.members = p.parseModule();
+
+    return mod;
+}
+
 extern(C++) class DeclCounterVisitor(AST) : ParseTimeTransitiveVisitor!AST
 {
     alias visit = ParseTimeTransitiveVisitor!AST.visit;
@@ -31,20 +51,7 @@ extern(C++) class DeclCounterVisitor(AST) : ParseTimeTransitiveVisitor!AST
 void main()
 {
     string fname = "source/app.d";
-    Id.initialize();
-    global._init();
-    target.os = Target.OS.linux;
-    target.isX86_64 = (size_t.sizeof == 8);
-    global.params.useUnitTests = true;
-    ASTBase.Type._init();
-
-    auto id = Identifier.idPool(fname);
-    auto mod = new ASTBase.Module(&(fname.dup)[0], id, false, false);
-    auto input = readText(fname) ~ "\0";
-
-    scope p = new Parser!ASTBase(mod, input, false, new ErrorSinkStderr(), null, false);
-    p.nextToken();
-    mod.members = p.parseModule();
+    auto mod = initAndParse(fname);
 
     scope v = new DeclCounterVisitor!ASTBase();
     mod.accept(v);

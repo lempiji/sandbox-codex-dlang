@@ -5,6 +5,13 @@ import std.string : fromStringz;
 import dmd.dmodule : Module;
 import dmd.dsymbol;
 
+private Module initAndParse(string path)
+{
+    initDMD();
+    auto result = parseModule(path);
+    return result.module_;
+}
+
 void traverse(Dsymbol s, int indent = 0)
 {
     foreach (_; 0 .. indent) write("  ");
@@ -18,8 +25,6 @@ void traverse(Dsymbol s, int indent = 0)
 
 void main()
 {
-    initDMD();
-    auto result = parseModule("source/app.d");
-    auto mod = result.module_;
+    auto mod = initAndParse("source/app.d");
     traverse(mod);
 }

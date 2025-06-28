@@ -11,10 +11,10 @@ HTTP DELETE request and capture the headers and JSON response. The
 `topics/http_common_setup` example demonstrates reusing HTTP
 configuration when talking to services like httpbin.org. The
 `topics/requests_vcr` example shows a basic VCR approach that
-records and replays POST responses using a `requests` interceptor. The `topics/dmd_ast` example parses its own source using DMD and prints the AST.
+records and replays POST responses using a `requests` interceptor. The `topics/dmd_ast` example parses the external file `sample.d` using DMD and prints its AST.
 
-The `topics/dmd_parsetime_visitor` example walks a parsed module using a custom ParseTimeVisitor.
+The `topics/dmd_parsetime_visitor` example parses `sample.d` and walks the resulting AST with a custom ParseTimeVisitor.
 
-The `topics/dmd_transitive_visitor` example counts declarations using a transitive visitor.
+The `topics/dmd_transitive_visitor` example parses `sample.d` and counts declarations using a transitive visitor.
 
-The `topics/dmd_visitor_modes` example contrasts permissive and strict AST visitors.
+The `topics/dmd_visitor_modes` example parses `sample.d` to contrast permissive and strict AST visitors.

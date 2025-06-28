@@ -1,5 +1,5 @@
 /**
- * This example parses `source/app.d` using DMD's frontend and then
+ * This example parses the external file `sample.d` using DMD's frontend and then
  * walks the resulting AST with a `PrintVisitor` (derived from
  * `ParseTimeVisitor`) to print symbol and statement information.
  */
@@ -64,8 +64,8 @@ void traverse(AST.Dsymbol s, PrintVisitor v)
 
 void main()
 {
-    // Parse this file using DMD's frontend
-    auto mod = initAndParse("source/app.d");
+    // Parse the sample source file using DMD's frontend
+    auto mod = initAndParse("sample.d");
     // Create the visitor that will print symbol and statement info
     auto visitor = new PrintVisitor();
     // Walk the AST with our visitor

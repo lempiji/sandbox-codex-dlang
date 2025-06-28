@@ -50,7 +50,7 @@ extern(C++) class DeclCounterVisitor(AST) : ParseTimeTransitiveVisitor!AST
 
 void main()
 {
-    string fname = "source/app.d";
+    string fname = "sample.d";
     auto mod = initAndParse(fname);
 
     scope v = new DeclCounterVisitor!ASTBase();

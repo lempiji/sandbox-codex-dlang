@@ -25,6 +25,7 @@ void traverse(Dsymbol s, int indent = 0)
 
 void main()
 {
-    auto mod = initAndParse("source/app.d");
+    // Parse an external source file rather than this module itself
+    auto mod = initAndParse("sample.d");
     traverse(mod);
 }

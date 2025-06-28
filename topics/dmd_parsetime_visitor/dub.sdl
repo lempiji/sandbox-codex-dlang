@@ -1,0 +1,4 @@
+name "dmd_parsetime_visitor"
+description "ParseTimeVisitor example"
+dependency "dmd" version="*"
+targetType "executable"

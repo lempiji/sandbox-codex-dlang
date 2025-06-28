@@ -4,17 +4,5 @@ This repository is a playground for exploring D language features.
 Each topic should be placed in its own subdirectory under `topics/`.
 Use `dub` or `dmd` as needed.
 
-See `topics/hello_world` for a minimal example. Additional examples
-include `topics/url_builder`, which demonstrates building a URL from
-query parameters, and `topics/http_delete`, which shows how to issue an
-HTTP DELETE request and capture the headers and JSON response. The
-`topics/http_common_setup` example demonstrates reusing HTTP
-configuration when talking to services like httpbin.org. The
-`topics/requests_vcr` example shows a basic VCR approach that
-records and replays POST responses using a `requests` interceptor. The `topics/dmd_ast` example parses the external file `sample.d` using DMD and prints its AST.
-
-The `topics/dmd_parsetime_visitor` example parses `sample.d` and walks the resulting AST with a custom ParseTimeVisitor.
-
-The `topics/dmd_transitive_visitor` example parses `sample.d` and counts declarations using a transitive visitor.
-
-The `topics/dmd_visitor_modes` example parses `sample.d` to contrast permissive and strict AST visitors.
+Individual examples live under `topics/` and each one contains its own
+`README.md` describing what the sample demonstrates.

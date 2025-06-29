@@ -1,0 +1,4 @@
+name "http_post_error"
+description "HTTP POST failOnError example"
+authors "root"
+license "proprietary"

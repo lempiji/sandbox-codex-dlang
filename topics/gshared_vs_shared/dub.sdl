@@ -1,0 +1,4 @@
+name "gshared_vs_shared"
+description "Demonstrates difference between __gshared and shared."
+authors "root"
+license "proprietary"

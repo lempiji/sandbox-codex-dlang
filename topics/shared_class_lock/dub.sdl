@@ -1,0 +1,4 @@
+name "shared_class_lock"
+description "Shared class with mutex for synchronized access"
+authors "root"
+license "proprietary"

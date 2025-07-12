@@ -1,0 +1,2 @@
+name "shared_ring_buffer"
+description "Lock-free ring buffer using shared memory and atomics."

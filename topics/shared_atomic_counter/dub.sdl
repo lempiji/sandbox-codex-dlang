@@ -1,0 +1,2 @@
+name "shared_atomic_counter"
+description "Demonstrates using shared and atomic operations across threads."

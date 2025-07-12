@@ -1,0 +1,4 @@
+name "shared_singleton"
+description "Lazily initialized singleton shared across threads"
+authors "root"
+license "proprietary"

@@ -1,10 +1,11 @@
 import std.stdio;
 import core.thread;
 import core.sync.mutex;
+import core.atomic;
 
 shared class BankAccount
 {
-    private double balance;
+    private shared double balance;
     private shared Mutex mutex;
 
     this(double initialBalance = 0) shared
@@ -17,7 +18,8 @@ shared class BankAccount
     {
         synchronized(mutex)
         {
-            (cast()balance) += amount;
+            auto bal = atomicLoad(balance);
+            atomicStore(balance, bal + amount);
         }
     }
 
@@ -25,7 +27,8 @@ shared class BankAccount
     {
         synchronized(mutex)
         {
-            (cast()balance) -= amount;
+            auto bal = atomicLoad(balance);
+            atomicStore(balance, bal - amount);
         }
     }
 
@@ -33,7 +36,7 @@ shared class BankAccount
     {
         synchronized(mutex)
         {
-            return (cast()balance);
+            return atomicLoad(balance);
         }
     }
 }

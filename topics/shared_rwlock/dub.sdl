@@ -1,0 +1,2 @@
+name "shared_rwlock"
+description "KeyValueStore with ReadWriteMutex for concurrent access"

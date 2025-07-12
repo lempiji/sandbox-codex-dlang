@@ -27,6 +27,6 @@ void main()
     t2.join();
 
     writeln("unsafeCounter: ", unsafeCounter);
-    // Cast to read from shared
-    writeln("safeCounter: ", cast(int)safeCounter);
+    // Atomically load to read from shared
+    writeln("safeCounter: ", atomicLoad(safeCounter));
 }

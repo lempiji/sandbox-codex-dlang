@@ -1,0 +1,4 @@
+name "shared_traits_introspection"
+description "Check shared qualifier with traits"
+authors "root"
+license "proprietary"

@@ -1,12 +1,13 @@
 import std.stdio;
 import core.thread;
 import core.sync.mutex;
+import core.atomic;
 
 class CounterSingleton
 {
     private static shared CounterSingleton _instance;
     private static shared Mutex initMutex;
-    private int value;
+    private shared int value;
 
     shared static this()
     {
@@ -32,7 +33,7 @@ class CounterSingleton
     {
         synchronized(initMutex)
         {
-            (cast()value)++;
+            atomicOp!"+="(value, 1);
         }
     }
 
@@ -40,7 +41,7 @@ class CounterSingleton
     {
         synchronized(initMutex)
         {
-            return (cast()value);
+            return atomicLoad(value);
         }
     }
 }

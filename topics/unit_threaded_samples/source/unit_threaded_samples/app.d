@@ -6,17 +6,6 @@ import std.exception : enforce;
 import std.format : format;
 import std.stdio : writeln;
 
-import unit_threaded;
-import unit_threaded.assertions;
-import utattrs = unit_threaded.runner.attrs;
-
-alias Name = utattrs.Name;
-alias Values = utattrs.Values;
-alias AutoTags = utattrs.AutoTags;
-alias Flaky = utattrs.Flaky;
-alias UnitTestAttr = utattrs.UnitTest;
-alias getValue = utattrs.getValue;
-
 int add(int lhs, int rhs) @safe pure nothrow @nogc
 {
     return lhs + rhs;
@@ -42,67 +31,64 @@ bool stabilizeAfterAttempts(ref int attempts, Duration waitTime, int succeedAt)
     return attempts >= succeedAt;
 }
 
-@UnitTestAttr
-@Name("addition with assertEqual")
-unittest
+version(unittest)
 {
-    add(2, 3).shouldEqual(5);
-}
+    import unit_threaded.assertions;
+    import utattrs = unit_threaded.runner.attrs;
 
-@UnitTestAttr
-@Name("data-driven greeting")
-@Values(["Ada", "Dlang", ""])
-@AutoTags
-unittest
-{
-    auto name = getValue!string();
-    auto expected = name.length ? format("Hello, %s!", name) : "Hello, world!";
-    greet(name).shouldEqual(expected);
-}
+    alias Name = utattrs.Name;
+    alias Values = utattrs.Values;
+    alias AutoTags = utattrs.AutoTags;
+    alias Flaky = utattrs.Flaky;
+    alias ShouldFailWith = utattrs.ShouldFailWith;
+    alias UnitTestAttr = utattrs.UnitTest;
+    alias getValue = utattrs.getValue;
 
-@UnitTestAttr
-@Name("flaky check retried with wait")
-@Flaky(3)
-unittest
-{
-    enum waitTime = 30.msecs;
-    static int attempts;
-
-    bool stabilized = false;
-    foreach(_; 0 .. 3)
+    @Name("addition with assertEqual")
+    unittest
     {
-        stabilized = stabilizeAfterAttempts(attempts, waitTime, 2);
-        if (stabilized)
-        {
-            break;
-        }
+        add(2, 3).shouldEqual(5);
     }
 
-    enforce(stabilized, format("Resource not ready after %s attempts", attempts));
-}
+    @Name("data-driven greeting")
+    @Values(["Ada", "Dlang", ""])
+    @AutoTags
+    unittest
+    {
+        auto name = getValue!string();
+        auto expected = name.length ? format("Hello, %s!", name) : "Hello, world!";
+        greet(name).shouldEqual(expected);
+    }
 
-@UnitTestAttr
-@Name("negative values must throw")
-unittest
-{
-    bool threw;
-    string message;
+    @Name("flaky check retried with wait")
+    @Flaky(3)
+    unittest
+    {
+        enum waitTime = 30.msecs;
+        static int attempts;
 
-    try
+        bool stabilized = false;
+        foreach(_; 0 .. 3)
+        {
+            stabilized = stabilizeAfterAttempts(attempts, waitTime, 2);
+            if (stabilized)
+            {
+                break;
+            }
+        }
+
+        enforce(stabilized, format("Resource not ready after %s attempts", attempts));
+    }
+
+    @Name("negative values must throw")
+    @ShouldFailWith!Exception("guard should reject negatives")
+    @UnitTestAttr
+    void ensurePositiveRejectsNegatives()
     {
         ensurePositive(-1);
     }
-    catch (Exception ex)
-    {
-        threw = true;
-        message = ex.msg;
-    }
-
-    threw.shouldBeTrue();
-    message.shouldEqual("guard should reject negatives");
 }
 
-version(unittest) {}
 else void main()
 {
     writeln("unit-threaded sample executable");

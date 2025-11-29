@@ -4,7 +4,7 @@ unit-threaded を使ったシンプルなテストコード集です。`source/u
 
 - `@Name` と `shouldEqual` によるテスト命名と可読性の高いアサーション
 - `@Values` + `@AutoTags` を使った data-driven テスト
-- try/catch で例外を捕捉し、期待メッセージを検証するテスト
+- `@ShouldFailWith` を使った例外メッセージの検証（try/catch を書かずに期待値を表現）
 - `@Flaky` でリトライ回数を指定し、テスト本体で待機時間を含めた再試行を表現（`Thread.sleep` で間隔を作っています）
 
 ## 実行方法

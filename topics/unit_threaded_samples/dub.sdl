@@ -2,7 +2,6 @@ name "unit_threaded_samples"
 description "Examples for unit-threaded basics, data-driven tests, and helpful UDAs."
 license "BSL-1.0"
 authors "Example Contributors"
-dependency "unit-threaded" version="~>0.7.50"
 
 configuration "application" {
     targetType "executable"
@@ -10,6 +9,7 @@ configuration "application" {
 
 configuration "unittest" {
     targetType "executable"
+    dependency "unit-threaded" version="~>0.7.50"
     mainSourceFile "test/ut_main.d"
     preBuildCommands "dub run unit-threaded -c gen_ut_main -- -f test/ut_main.d source/"
 }

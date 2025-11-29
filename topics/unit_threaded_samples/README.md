@@ -2,9 +2,9 @@
 
 unit-threaded を使ったシンプルなテストコード集です。`source/unit_threaded_samples/app.d` にはテスト対象（簡単な計算と文字列操作）があり、unit-threaded の以下の機能を実演します。
 
-- `@Name` と `assertEqual` によるテスト命名と可読性の高いアサーション
+- `@Name` と `shouldEqual` によるテスト命名と可読性の高いアサーション
 - `@Values` + `@AutoTags` を使った data-driven テスト
-- `@ShouldFailWith` で例外を期待するテスト
+- try/catch で例外を捕捉し、期待メッセージを検証するテスト
 - `@Flaky` でリトライ回数を指定し、テスト本体で待機時間を含めた再試行を表現（`Thread.sleep` で間隔を作っています）
 
 ## 実行方法

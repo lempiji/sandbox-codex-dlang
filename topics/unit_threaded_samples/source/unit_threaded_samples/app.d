@@ -2,7 +2,7 @@ module unit_threaded_samples.app;
 
 import core.thread : Thread;
 import std.datetime : Duration, msecs;
-import std.exception : collectException, enforce;
+import std.exception : enforce;
 import std.format : format;
 import std.stdio : writeln;
 
@@ -14,15 +14,8 @@ alias Name = utattrs.Name;
 alias Values = utattrs.Values;
 alias AutoTags = utattrs.AutoTags;
 alias Flaky = utattrs.Flaky;
-alias ShouldFailWith = utattrs.ShouldFailWith;
 alias UnitTestAttr = utattrs.UnitTest;
-alias DontTest = utattrs.DontTest;
 alias getValue = utattrs.getValue;
-
-void assertEqual(T, U)(T actual, U expected)
-{
-    actual.shouldEqual(expected);
-}
 
 int add(int lhs, int rhs) @safe pure nothrow @nogc
 {
@@ -36,7 +29,10 @@ string greet(string name)
 
 void ensurePositive(int value)
 {
-    enforce(value >= 0, "value must be non-negative");
+    if (value < 0)
+    {
+        throw new Exception("guard should reject negatives");
+    }
 }
 
 bool stabilizeAfterAttempts(ref int attempts, Duration waitTime, int succeedAt)
@@ -50,7 +46,7 @@ bool stabilizeAfterAttempts(ref int attempts, Duration waitTime, int succeedAt)
 @Name("addition with assertEqual")
 unittest
 {
-    assertEqual(add(2, 3), 5);
+    add(2, 3).shouldEqual(5);
 }
 
 @UnitTestAttr
@@ -61,7 +57,7 @@ unittest
 {
     auto name = getValue!string();
     auto expected = name.length ? format("Hello, %s!", name) : "Hello, world!";
-    assertEqual(greet(name), expected);
+    greet(name).shouldEqual(expected);
 }
 
 @UnitTestAttr
@@ -87,17 +83,23 @@ unittest
 
 @UnitTestAttr
 @Name("negative values must throw")
-@ShouldFailWith!Exception("guard should reject negatives")
-@DontTest
 unittest
 {
+    bool threw;
+    string message;
+
     try
     {
         ensurePositive(-1);
     }
-    catch (Exception)
+    catch (Exception ex)
     {
+        threw = true;
+        message = ex.msg;
     }
+
+    threw.shouldBeTrue();
+    message.shouldEqual("guard should reject negatives");
 }
 
 version(unittest) {}

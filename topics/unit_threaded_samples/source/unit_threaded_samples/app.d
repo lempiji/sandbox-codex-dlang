@@ -44,7 +44,7 @@ version(unittest)
     alias UnitTestAttr = utattrs.UnitTest;
     alias getValue = utattrs.getValue;
 
-    @Name("addition with assertEqual")
+    @Name("addition with shouldEqual")
     unittest
     {
         add(2, 3).shouldEqual(5);

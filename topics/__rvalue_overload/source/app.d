@@ -9,10 +9,12 @@ struct T
 struct Tracer
 {
     int value;
+    bool released;
 
     this(int value)
     {
         this.value = value;
+        released = false;
         writeln("Tracer value ctor: " ~ this.value.to!string);
     }
 
@@ -20,7 +22,9 @@ struct Tracer
     {
         writeln("Tracer move ctor from rvalue: " ~ rhs.value.to!string);
         value = rhs.value;
+        released = rhs.released;
         rhs.value = -1; // mark the moved-from state
+        rhs.released = true; // relinquish ownership so its destructor complains if invoked
     }
 
     this(this)
@@ -32,6 +36,19 @@ struct Tracer
     {
         writeln("Tracer copy ctor from lvalue: " ~ rhs.value.to!string);
         value = rhs.value;
+        released = false;
+    }
+
+    ~this()
+    {
+        if (released)
+        {
+            writeln("Tracer destructor: double release detected for value=" ~ value.to!string);
+            return;
+        }
+
+        writeln("Tracer destructor: releasing value=" ~ value.to!string);
+        released = true;
     }
 }
 
@@ -44,6 +61,17 @@ void foo(T)(T value)
 void foo(T)(ref T value)
 {
     writeln("foo(ref T) overload");
+}
+
+void consumeByValue(Tracer t)
+{
+    writeln("consumeByValue -> holding value " ~ t.value.to!string);
+}
+
+void observeRef(ref Tracer t)
+{
+    writeln("observeRef -> seeing value " ~ t.value.to!string);
+    t.value += 1;
 }
 
 // Returning by ref normally produces an lvalue, so overload resolution can prefer ref.
@@ -115,4 +143,24 @@ void main()
 
     writeln("-- assignment from temporary --");
     target = Tracer(300);
+
+    writeln("\n=== Destructor ordering for by-value parameters ===");
+    Tracer byValue = Tracer(500);
+    writeln("-- call with named lvalue (copies) --");
+    consumeByValue(byValue);
+    writeln("after consumeByValue(byValue) the source still owns: " ~ byValue.value.to!string);
+
+    writeln("-- call with __rvalue named value (moves) --");
+    consumeByValue(__rvalue(byValue));
+    writeln("after consumeByValue(__rvalue(byValue)) source is moved-from: " ~ byValue.value.to!string);
+
+    writeln("\n=== Using moved-from instances ===");
+    Tracer refAfterMove = Tracer(600);
+    consumeByValue(__rvalue(refAfterMove));
+    writeln("-- attempting to use moved-from refAfterMove via ref --");
+    observeRef(refAfterMove);
+
+    Tracer intact = Tracer(700);
+    writeln("-- using intact lvalue via ref --");
+    observeRef(intact);
 }

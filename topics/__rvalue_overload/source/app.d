@@ -1,8 +1,38 @@
+import std.conv : to;
 import std.stdio;
 
 struct T
 {
     int value;
+}
+
+struct Tracer
+{
+    int value;
+
+    this(int value)
+    {
+        this.value = value;
+        writeln("Tracer value ctor: " ~ this.value.to!string);
+    }
+
+    this(return scope Tracer rhs)
+    {
+        writeln("Tracer move ctor from rvalue: " ~ rhs.value.to!string);
+        value = rhs.value;
+        rhs.value = -1; // mark the moved-from state
+    }
+
+    this(this)
+    {
+        writeln("Tracer postblit copy from: " ~ value.to!string);
+    }
+
+    this(ref return scope const Tracer rhs)
+    {
+        writeln("Tracer copy ctor from lvalue: " ~ rhs.value.to!string);
+        value = rhs.value;
+    }
 }
 
 // Overload set to see how ref-qualified parameters interact with rvalues.
@@ -53,4 +83,36 @@ void main()
 
     // The __rvalue attribute on the ref return causes the value overload to win instead.
     foo(produceRefRvalue());
+
+    writeln("\n=== Move/postblit/copy tracing ===");
+
+    Tracer xTrace = Tracer(100);
+
+    writeln("-- initialization from named lvalue --");
+    Tracer fromX = xTrace;
+
+    writeln("-- initialization from __rvalue(xTrace) --");
+    Tracer fromRvalue = __rvalue(xTrace);
+
+    writeln("-- initialization from temporary --");
+    Tracer fromTemp = Tracer(200);
+
+    const Tracer constTrace = Tracer(400);
+    writeln("-- initialization from const lvalue (copy ctor) --");
+    Tracer fromConst = constTrace;
+
+    writeln("-- explicit copy constructor call --");
+    Tracer fromCopy = void;
+    fromCopy.__ctor(constTrace);
+
+    Tracer target = Tracer(0);
+
+    writeln("-- assignment from named lvalue --");
+    target = xTrace;
+
+    writeln("-- assignment from __rvalue(xTrace) --");
+    target = __rvalue(xTrace);
+
+    writeln("-- assignment from temporary --");
+    target = Tracer(300);
 }

@@ -1,0 +1,4 @@
+name "__rvalue_overload"
+description "Demonstrate overload resolution with rvalues and __rvalue returns."
+authors "root"
+license "proprietary"

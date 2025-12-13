@@ -13,7 +13,8 @@ overload is chosen for:
 - a named variable (`x`), the same variable wrapped with `__rvalue`, and a
   temporary `T(2)`
 - a `ref` return without `__rvalue` versus a `ref` return marked as
-  `__rvalue`
+  `__rvalue`, both called directly and again via `__rvalue(...)`, including
+  whether their results can bind to `ref` variables
 - a `Tracer` passed by value or `__rvalue` to see when destructors run
   and how using a moved-from instance is reported
 - the difference between a type with a move constructor (`Tracer`) and

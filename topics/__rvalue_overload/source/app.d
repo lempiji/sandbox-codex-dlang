@@ -52,6 +52,73 @@ struct Tracer
     }
 }
 
+struct TracerNoMove
+{
+    int value;
+    bool released;
+
+    this(int value)
+    {
+        this.value = value;
+        released = false;
+        writeln("TracerNoMove value ctor: " ~ this.value.to!string);
+    }
+
+    this(this)
+    {
+        writeln("TracerNoMove postblit copy from: " ~ value.to!string);
+    }
+
+    this(ref return scope const TracerNoMove rhs)
+    {
+        writeln("TracerNoMove copy ctor from lvalue: " ~ rhs.value.to!string);
+        value = rhs.value;
+        released = false;
+    }
+
+    this(ref return scope TracerNoMove rhs)
+    {
+        writeln("TracerNoMove copy ctor from mutable rvalue: " ~ rhs.value.to!string);
+        value = rhs.value;
+        released = false;
+    }
+
+    this(scope TracerNoMove rhs)
+    {
+        writeln("TracerNoMove copy ctor from scoped rvalue: " ~ rhs.value.to!string);
+        value = rhs.value;
+        released = false;
+    }
+
+    ref TracerNoMove opAssign(ref TracerNoMove rhs)
+    {
+        writeln("TracerNoMove opAssign from lvalue: " ~ rhs.value.to!string);
+        value = rhs.value;
+        released = false;
+        return this;
+    }
+
+    ref TracerNoMove opAssign(scope TracerNoMove rhs)
+    {
+        writeln("TracerNoMove opAssign from rvalue (copy path): " ~ rhs.value.to!string);
+        value = rhs.value;
+        released = false;
+        return this;
+    }
+
+    ~this()
+    {
+        if (released)
+        {
+            writeln("TracerNoMove destructor: double release detected for value=" ~ value.to!string);
+            return;
+        }
+
+        writeln("TracerNoMove destructor: releasing value=" ~ value.to!string);
+        released = true;
+    }
+}
+
 // Overload set to see how ref-qualified parameters interact with rvalues.
 void foo(T)(T value)
 {
@@ -143,6 +210,39 @@ void main()
 
     writeln("-- assignment from temporary --");
     target = Tracer(300);
+
+    writeln("\n=== Copy-only tracing (no move constructor available) ===");
+
+    TracerNoMove copyOnly = TracerNoMove(1000);
+
+    writeln("-- initialization from named lvalue --");
+    TracerNoMove copyFromX = copyOnly;
+
+    writeln("-- initialization from __rvalue(copyOnly) --");
+    TracerNoMove copyFromRvalue = void;
+    copyFromRvalue.__ctor(__rvalue(copyOnly));
+
+    writeln("-- initialization from temporary --");
+    TracerNoMove copyFromTemp = TracerNoMove(1200);
+
+    const TracerNoMove constCopyOnly = TracerNoMove(1400);
+    writeln("-- initialization from const lvalue (copy ctor) --");
+    TracerNoMove copyFromConst = constCopyOnly;
+
+    writeln("-- explicit copy constructor call --");
+    TracerNoMove copyFromCopyCtor = void;
+    copyFromCopyCtor.__ctor(constCopyOnly);
+
+    TracerNoMove copyTarget = TracerNoMove(0);
+
+    writeln("-- assignment from named lvalue --");
+    copyTarget = copyOnly;
+
+    writeln("-- assignment from __rvalue(copyOnly) --");
+    copyTarget = __rvalue(copyOnly);
+
+    writeln("-- assignment from temporary --");
+    copyTarget = TracerNoMove(1300);
 
     writeln("\n=== Destructor ordering for by-value parameters ===");
     Tracer byValue = Tracer(500);

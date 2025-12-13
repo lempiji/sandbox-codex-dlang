@@ -173,11 +173,25 @@ void main()
 
     writeln("\n=== Ref return vs __rvalue ref return ===");
 
-    // The ref return acts like an lvalue, so the ref overload is selected.
-    foo(produceRef());
+    {
+        writeln("-- plain calls --");
 
-    // The __rvalue attribute on the ref return causes the value overload to win instead.
-    foo(produceRefRvalue());
+        // The ref return acts like an lvalue, so the ref overload is selected.
+        foo(produceRef());
+
+        // The __rvalue attribute on the ref return causes the value overload to win instead.
+        foo(produceRefRvalue());
+
+        writeln("-- wrapped in __rvalue(...) --");
+        foo(__rvalue(produceRef()));
+        foo(__rvalue(produceRefRvalue()));
+
+        enum canBindRef = __traits(compiles, { ref T bound = produceRef(); });
+        enum canBindRvalueRef = __traits(compiles, { ref T bound = produceRefRvalue(); });
+
+        writeln("produceRef binds to ref variable: " ~ canBindRef.to!string);
+        writeln("produceRefRvalue binds to ref variable: " ~ canBindRvalueRef.to!string);
+    }
 
     writeln("\n=== Move/postblit/copy tracing ===");
 

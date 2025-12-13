@@ -157,7 +157,7 @@ ref T produceRefRvalue() __rvalue
     return stored;
 }
 
-void main()
+void showParameterOverload()
 {
     writeln("=== Parameter overload selection ===");
     T x = T(1);
@@ -170,7 +170,10 @@ void main()
 
     // A temporary (rvalue) cannot bind to ref, so foo(T) is invoked.
     foo(T(2));
+}
 
+void showRefReturnBehavior()
+{
     writeln("\n=== Ref return vs __rvalue ref return ===");
 
     {
@@ -192,7 +195,10 @@ void main()
         writeln("produceRef binds to ref variable: " ~ canBindRef.to!string);
         writeln("produceRefRvalue binds to ref variable: " ~ canBindRvalueRef.to!string);
     }
+}
 
+void showTracerMoves()
+{
     writeln("\n=== Move/postblit/copy tracing ===");
 
     {
@@ -226,7 +232,10 @@ void main()
         writeln("-- assignment from temporary --");
         target = Tracer(300);
     }
+}
 
+void showCopyOnlyBehavior()
+{
     writeln("\n=== Copy-only tracing (no move constructor available) ===");
 
     {
@@ -261,7 +270,10 @@ void main()
         writeln("-- assignment from temporary --");
         copyTarget = TracerNoMove(1300);
     }
+}
 
+void showDestructorOrdering()
+{
     writeln("\n=== Destructor ordering for by-value parameters ===");
     {
         writeln("-- call with named lvalue (copies) --");
@@ -277,7 +289,10 @@ void main()
         writeln("after consumeByValue(__rvalue(byValue)) source is moved-from: " ~ byValue.value.to!string);
         writeln("moved-from instances warn on destruction while intact ones release cleanly");
     }
+}
 
+void showMovedFromUse()
+{
     writeln("\n=== Using moved-from instances ===");
     {
         Tracer refAfterMove = Tracer(600);
@@ -292,4 +307,14 @@ void main()
         observeRef(intact);
         writeln("Intact values keep ownership so ref use stays safe");
     }
+}
+
+void main()
+{
+    showParameterOverload();
+    showRefReturnBehavior();
+    showTracerMoves();
+    showCopyOnlyBehavior();
+    showDestructorOrdering();
+    showMovedFromUse();
 }

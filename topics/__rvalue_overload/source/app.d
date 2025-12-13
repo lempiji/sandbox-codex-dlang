@@ -195,86 +195,101 @@ void main()
 
     writeln("\n=== Move/postblit/copy tracing ===");
 
-    Tracer xTrace = Tracer(100);
+    {
+        Tracer xTrace = Tracer(100);
 
-    writeln("-- initialization from named lvalue --");
-    Tracer fromX = xTrace;
+        writeln("-- initialization from named lvalue --");
+        Tracer fromX = xTrace;
 
-    writeln("-- initialization from __rvalue(xTrace) --");
-    Tracer fromRvalue = __rvalue(xTrace);
+        writeln("-- initialization from __rvalue(xTrace) --");
+        Tracer fromRvalue = __rvalue(xTrace);
 
-    writeln("-- initialization from temporary --");
-    Tracer fromTemp = Tracer(200);
+        writeln("-- initialization from temporary --");
+        Tracer fromTemp = Tracer(200);
 
-    const Tracer constTrace = Tracer(400);
-    writeln("-- initialization from const lvalue (copy ctor) --");
-    Tracer fromConst = constTrace;
+        const Tracer constTrace = Tracer(400);
+        writeln("-- initialization from const lvalue (copy ctor) --");
+        Tracer fromConst = constTrace;
 
-    writeln("-- explicit copy constructor call --");
-    Tracer fromCopy = void;
-    fromCopy.__ctor(constTrace);
+        writeln("-- explicit copy constructor call --");
+        Tracer fromCopy = void;
+        fromCopy.__ctor(constTrace);
 
-    Tracer target = Tracer(0);
+        Tracer target = Tracer(0);
 
-    writeln("-- assignment from named lvalue --");
-    target = xTrace;
+        writeln("-- assignment from named lvalue --");
+        target = xTrace;
 
-    writeln("-- assignment from __rvalue(xTrace) --");
-    target = __rvalue(xTrace);
+        writeln("-- assignment from __rvalue(xTrace) --");
+        target = __rvalue(xTrace);
 
-    writeln("-- assignment from temporary --");
-    target = Tracer(300);
+        writeln("-- assignment from temporary --");
+        target = Tracer(300);
+    }
 
     writeln("\n=== Copy-only tracing (no move constructor available) ===");
 
-    TracerNoMove copyOnly = TracerNoMove(1000);
+    {
+        TracerNoMove copyOnly = TracerNoMove(1000);
 
-    writeln("-- initialization from named lvalue --");
-    TracerNoMove copyFromX = copyOnly;
+        writeln("-- initialization from named lvalue --");
+        TracerNoMove copyFromX = copyOnly;
 
-    writeln("-- initialization from __rvalue(copyOnly) --");
-    TracerNoMove copyFromRvalue = void;
-    copyFromRvalue.__ctor(__rvalue(copyOnly));
+        writeln("-- initialization from __rvalue(copyOnly) --");
+        TracerNoMove copyFromRvalue = void;
+        copyFromRvalue.__ctor(__rvalue(copyOnly));
 
-    writeln("-- initialization from temporary --");
-    TracerNoMove copyFromTemp = TracerNoMove(1200);
+        writeln("-- initialization from temporary --");
+        TracerNoMove copyFromTemp = TracerNoMove(1200);
 
-    const TracerNoMove constCopyOnly = TracerNoMove(1400);
-    writeln("-- initialization from const lvalue (copy ctor) --");
-    TracerNoMove copyFromConst = constCopyOnly;
+        const TracerNoMove constCopyOnly = TracerNoMove(1400);
+        writeln("-- initialization from const lvalue (copy ctor) --");
+        TracerNoMove copyFromConst = constCopyOnly;
 
-    writeln("-- explicit copy constructor call --");
-    TracerNoMove copyFromCopyCtor = void;
-    copyFromCopyCtor.__ctor(constCopyOnly);
+        writeln("-- explicit copy constructor call --");
+        TracerNoMove copyFromCopyCtor = void;
+        copyFromCopyCtor.__ctor(constCopyOnly);
 
-    TracerNoMove copyTarget = TracerNoMove(0);
+        TracerNoMove copyTarget = TracerNoMove(0);
 
-    writeln("-- assignment from named lvalue --");
-    copyTarget = copyOnly;
+        writeln("-- assignment from named lvalue --");
+        copyTarget = copyOnly;
 
-    writeln("-- assignment from __rvalue(copyOnly) --");
-    copyTarget = __rvalue(copyOnly);
+        writeln("-- assignment from __rvalue(copyOnly) --");
+        copyTarget = __rvalue(copyOnly);
 
-    writeln("-- assignment from temporary --");
-    copyTarget = TracerNoMove(1300);
+        writeln("-- assignment from temporary --");
+        copyTarget = TracerNoMove(1300);
+    }
 
     writeln("\n=== Destructor ordering for by-value parameters ===");
-    Tracer byValue = Tracer(500);
-    writeln("-- call with named lvalue (copies) --");
-    consumeByValue(byValue);
-    writeln("after consumeByValue(byValue) the source still owns: " ~ byValue.value.to!string);
+    {
+        writeln("-- call with named lvalue (copies) --");
+        Tracer byValue = Tracer(500);
+        consumeByValue(byValue);
+        writeln("after consumeByValue(byValue) the source still owns: " ~ byValue.value.to!string);
+    }
 
-    writeln("-- call with __rvalue named value (moves) --");
-    consumeByValue(__rvalue(byValue));
-    writeln("after consumeByValue(__rvalue(byValue)) source is moved-from: " ~ byValue.value.to!string);
+    {
+        writeln("-- call with __rvalue named value (moves) --");
+        Tracer byValue = Tracer(510);
+        consumeByValue(__rvalue(byValue));
+        writeln("after consumeByValue(__rvalue(byValue)) source is moved-from: " ~ byValue.value.to!string);
+        writeln("moved-from instances warn on destruction while intact ones release cleanly");
+    }
 
     writeln("\n=== Using moved-from instances ===");
-    Tracer refAfterMove = Tracer(600);
-    consumeByValue(__rvalue(refAfterMove));
-    writeln("-- attempting to use moved-from refAfterMove via ref --");
-    observeRef(refAfterMove);
+    {
+        Tracer refAfterMove = Tracer(600);
+        consumeByValue(__rvalue(refAfterMove));
+        writeln("-- attempting to use moved-from refAfterMove via ref --");
+        observeRef(refAfterMove);
+    }
 
-    Tracer intact = Tracer(700);
-    writeln("-- using intact lvalue via ref --");
-    observeRef(intact);
+    {
+        Tracer intact = Tracer(700);
+        writeln("-- using intact lvalue via ref --");
+        observeRef(intact);
+        writeln("Intact values keep ownership so ref use stays safe");
+    }
 }
